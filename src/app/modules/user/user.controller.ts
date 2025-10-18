@@ -2,6 +2,13 @@ import { Request, Response } from "express";
 import { User } from "./user.model";
 import { createUserValidation } from "./user.validation";
 import bcrypt from "bcrypt";
+import { generatetoken } from "../../utility/jwt";
+import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { envVars } from "../../config/env";
+import { createusertoken } from "../../utility/usertoken";
+import { Wallet } from "../wallet/wallet.model";
+import { Types } from "mongoose";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -23,16 +30,22 @@ export const getMyProfile = async (req: any, res: Response) => {
   }
 };
 
+
+
+
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const parsedData = createUserValidation.parse({ body: req.body });
-    const { name, email, password, role } = parsedData.body;
+    const { name, email, password, role } = req.body;
 
-    const existing = await User.findOne({ email });
-    if (existing)
-      return res.status(400).json({ success: false, message: "Email already exists" });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcryptjs.hash(password, Number(envVars.BCRYPT_SALT_ROUND) || 10);
 
     const user = await User.create({
       name,
@@ -41,20 +54,34 @@ export const registerUser = async (req: Request, res: Response) => {
       role: role || "user",
     });
 
+    // 🏦 Create wallet automatically for this user
+    const wallet = await Wallet.create({
+      user: user._id,
+      balance: 50, 
+    });
+
+    user.wallet = wallet?._id as Types.ObjectId;
+    await user.save();
+
+    // 🎟️ Generate token
+    const tokens = createusertoken(user);
+
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
-      data: user,
+      message: "User registered successfully with wallet",
+      data: {
+        user,
+        wallet,
+        tokens,
+      },
     });
   } catch (error: any) {
-    if (error.errors) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error",
-        errors: error.errors,
-      });
-    }
-    res.status(500).json({ success: false, message: "Failed to register user", error });
+    console.error("Register Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to register user",
+      error: error.message,
+    });
   }
 };
 
