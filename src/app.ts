@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import { UserRoutes } from "./app/modules/user/user.route";
 import { WalletRoutes } from "./app/modules/wallet/wallet.route";
+import { agentroutes } from "./app/modules/agent/agent.route";
 
 const app: Application = express();
 
@@ -19,6 +20,7 @@ app.use("/api/v1/users", UserRoutes);
 // ✅ (Later you’ll add others like)
 // app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/wallets", WalletRoutes);
+app.use("/api/v1/agent", agentroutes);
 // app.use("/api/v1/transactions", TransactionRoutes);
 
 export default app;
