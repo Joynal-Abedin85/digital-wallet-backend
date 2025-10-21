@@ -3,6 +3,7 @@ import cors from "cors";
 import { UserRoutes } from "./app/modules/user/user.route";
 import { WalletRoutes } from "./app/modules/wallet/wallet.route";
 import { agentroutes } from "./app/modules/agent/agent.route";
+import { adminroute } from "./app/modules/admin/admin.route";
 
 const app: Application = express();
 
@@ -21,6 +22,8 @@ app.use("/api/v1/users", UserRoutes);
 // app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/wallets", WalletRoutes);
 app.use("/api/v1/agent", agentroutes);
+app.use("/admin", adminroute);
+
 // app.use("/api/v1/transactions", TransactionRoutes);
 
 export default app;
