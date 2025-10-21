@@ -44,37 +44,49 @@ src/
 ├── app.ts # Main entry point
 
 Authentication Flow
-| Step         | Endpoint                        | Method | Description                       |
-| ------------ | ------------------------------- | ------ | --------------------------------- |
-| Register     | `/auth/register`                | POST   | Create a new user                 |
-| Login        | `/auth/login`                   | POST   | Generate JWT token                |
-| Token Verify | `Authorization: Bearer <token>` | Header | All protected routes require this |
+| Step         | Endpoint                         | Method | Description                       |
+| ------------ | -------------------------------- | ------ | --------------------------------- |
+| Register     | `/users/register`                | POST   | Create a new user                 |
+| Token Verify | `Authorization: Bearer <token>`  | Header | Required for all protected routes |
+
 
 
 User API Endpoints
-| Action              | Endpoint             | Method | Description                |
-| ------------------- | -------------------- | ------ | -------------------------- |
-| Get Wallet Info     | `/user/wallet`       | GET    | View wallet details        |
-| Send Money          | `/user/transfer`     | POST   | Send money to another user |
-| Withdraw            | `/user/withdraw`     | POST   | Withdraw from wallet       |
-| Transaction History | `/user/transactions` | GET    | View all transactions      |
+| Action             | Endpoint             | Method | Description                      |
+| ------------------ | -------------------- | ------ | -------------------------------- |
+| Register User      | `/users/register`    | POST   | Register a new user              |
+| Get All Users      | `/users/`            | GET    | View all users (for testing/dev) |
+| Get My Profile     | `/users/me`          | GET    | Get logged-in user’s profile     |
+| Block/Unblock User | `/users/block/:id`   | PATCH  | Block or unblock a user          |
+| Approve Agent      | `/users/approve/:id` | PATCH  | Approve a user as agent          |
+
+
+wallet api
+| Action         | Endpoint            | Method | Description                 |
+| -------------- | ------------------- | ------ | --------------------------- |
+| Get My Wallet  | `/wallets/me`       | GET    | View current user’s wallet  |
+| Add Money      | `/wallets/deposit`  | POST   | Deposit money (add balance) |
+| Withdraw Money | `/wallets/withdraw` | POST   | Withdraw from wallet        |
+| Send Money     | `/wallets/send`     | POST   | Send money to another user  |
 
 
 Agent API Endpoints
 | Action             | Endpoint             | Method | Description                  |
 | ------------------ | -------------------- | ------ | ---------------------------- |
-| Cash-In            | `/agent/cash-in`     | POST   | Add money to a user's wallet |
-| Cash-Out           | `/agent/cash-out`    | POST   | Withdraw money from user     |
+| Cash-In            | `/agent/cash-in`     | POST   | Add money to a user’s wallet |
+| Cash-Out           | `/agent/cash-out`    | POST   | Withdraw money from a user   |
 | Commission History | `/agent/commissions` | GET    | View earned commissions      |
+
 
 
 Admin API Endpoints
 | Action                  | Endpoint                    | Method | Description               |
 | ----------------------- | --------------------------- | ------ | ------------------------- |
-| View All Users          | `/admin/users`              | GET    | Show all registered users |
-| View All Wallets        | `/admin/wallets`            | GET    | Show all user wallets     |
+| View All Users          | `/admin/users`              | GET    | View all registered users |
+| View All Wallets        | `/admin/wallets`            | GET    | View all wallets          |
 | Block / Unblock Wallet  | `/admin/wallets/:id/status` | PATCH  | Change wallet status      |
 | Approve / Suspend Agent | `/admin/agents/:id/status`  | PATCH  | Manage agent status       |
+
 
 
 🧠 Tech Stack
