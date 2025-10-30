@@ -2,14 +2,12 @@ import { Wallet } from "./wallet.model";
 import { User } from "../user/user.model";
 import { Types } from "mongoose";
 
-// 🔹 Create wallet automatically for new user
 export const createWalletForUser = async (userId: Types.ObjectId) => {
   const wallet = await Wallet.create({ user: userId, balance: 50 });
   await User.findByIdAndUpdate(userId, { wallet: wallet._id });
   return wallet;
 };
 
-// 🔹 Add money
 export const addMoney = async (userId: Types.ObjectId, amount: number) => {
   const wallet = await Wallet.findOne({ user: userId });
 
@@ -23,7 +21,6 @@ export const addMoney = async (userId: Types.ObjectId, amount: number) => {
   return wallet;
 };
 
-// 🔹 Withdraw money
 export const withdrawMoney = async (userId: Types.ObjectId, amount: number) => {
   const wallet = await Wallet.findOne({ user: userId });
 
@@ -41,7 +38,6 @@ export const withdrawMoney = async (userId: Types.ObjectId, amount: number) => {
   return wallet;
 };
 
-// 🔹 Send money to another user (via email)
 export const sendMoney = async (
   senderId: Types.ObjectId,
   receiverEmail: string,

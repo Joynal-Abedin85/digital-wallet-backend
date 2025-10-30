@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { User } from "../user/user.model";
 import { Wallet } from "../wallet/wallet.model";
 
-// 🔹 সব ইউজার দেখা
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find().select("-password");
@@ -12,7 +11,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// 🔹 সব ওয়ালেট দেখা
 export const getAllWallets = async (req: Request, res: Response) => {
   try {
     const wallets = await Wallet.find().populate("user", "name email role");
@@ -22,11 +20,10 @@ export const getAllWallets = async (req: Request, res: Response) => {
   }
 };
 
-// 🔹 ওয়ালেট ব্লক / আনব্লক করা
 export const updateWalletStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // "active" | "blocked"
+    const { status } = req.body; 
 
     if (!["active", "blocked"].includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid status value" });
@@ -43,11 +40,10 @@ export const updateWalletStatus = async (req: Request, res: Response) => {
   }
 };
 
-// 🔹 এজেন্ট অ্যাপ্রুভ / সাসপেন্ড করা
 export const updateAgentStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // "approved" | "suspended"
+    const { status } = req.body; 
 
     if (!["approved", "suspended"].includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid status value" });

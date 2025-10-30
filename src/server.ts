@@ -1,6 +1,4 @@
-import express, { Request, Response } from "express";
 import {Server} from "http"
-import { connect } from "http2";
 import mongoose from "mongoose";
 import app from "./app";
 import { envVars } from "./app/config/env";

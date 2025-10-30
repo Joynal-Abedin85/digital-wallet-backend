@@ -4,11 +4,10 @@ import { verifyToken } from "../../middlewares/authMiddleware";
 
 const router = express.Router();
 
-// 🔹 Protected routes (JWT required)
 router.use(verifyToken);
 
 router.get("/me", getMyWallet);
-router.post("/add", addMoney);
+router.post("/deposit", addMoney);
 router.post("/withdraw", withdrawMoney);
 router.post("/send", sendMoney);
 

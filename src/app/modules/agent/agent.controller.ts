@@ -1,4 +1,3 @@
-// src/controllers/agent.controller.ts
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Wallet } from "../wallet/wallet.model";
@@ -21,11 +20,9 @@ export const cashIn = async (req: any, res: Response) => {
       return res.status(404).json({ success: false, message: "User wallet not accessible" });
     }
 
-    // Wallet update
     userWallet.balance += amount;
     await userWallet.save({ session });
 
-    // কমিশন ক্যালকুলেট (e.g. 1%)
     const commissionAmount = amount * 0.01;
     await Commission.create([{ agent: agentId, amount: commissionAmount, type: "cash-in" }], { session });
 
@@ -56,11 +53,9 @@ export const cashOut = async (req: any, res: Response) => {
       return res.status(400).json({ success: false, message: "Insufficient balance" });
     }
 
-    // Wallet update
     userWallet.balance -= amount;
     await userWallet.save({ session });
 
-    // কমিশন ক্যালকুলেট (e.g. 1%)
     const commissionAmount = amount * 0.01;
     await Commission.create([{ agent: agentId, amount: commissionAmount, type: "cash-out" }], { session });
 

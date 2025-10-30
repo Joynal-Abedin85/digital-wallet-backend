@@ -14,7 +14,6 @@ export const createusertoken = (user: Partial<IUser>) => {
     throw new Error("User data incomplete");
   }
 
-  // _id কে string এ convert করলাম
   const userId = (user._id as Types.ObjectId).toString();
      const jwtpayload: JwtPayload = {
     userId,

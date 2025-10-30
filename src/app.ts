@@ -16,14 +16,9 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.use("/api/v1/users", UserRoutes);  
-
-// ✅ (Later you’ll add others like)
-// app.use("/api/v1/auth", AuthRoutes);
-app.use("/api/v1/wallets", WalletRoutes);
-app.use("/api/v1/agent", agentroutes);
+app.use("/users", UserRoutes);  
+app.use("/wallets", WalletRoutes);
+app.use("/agent", agentroutes);
 app.use("/admin", adminroute);
-
-// app.use("/api/v1/transactions", TransactionRoutes);
 
 export default app;

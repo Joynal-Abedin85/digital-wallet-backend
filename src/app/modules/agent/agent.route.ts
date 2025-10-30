@@ -1,4 +1,3 @@
-// src/routes/agent.route.ts
 import express from "express";
 import { cashIn, cashOut, getCommissionHistory } from "./agent.controller";
 import { authorizeRoles, verifyToken } from "../../middlewares/authMiddleware";

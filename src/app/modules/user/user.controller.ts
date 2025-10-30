@@ -54,7 +54,6 @@ export const registerUser = async (req: Request, res: Response) => {
       role: role || "user",
     });
 
-    // 🏦 Create wallet automatically for this user
     const wallet = await Wallet.create({
       user: user._id,
       balance: 50, 
@@ -63,7 +62,6 @@ export const registerUser = async (req: Request, res: Response) => {
     user.wallet = wallet?._id as Types.ObjectId;
     await user.save();
 
-    // 🎟️ Generate token
     const tokens = createusertoken(user);
 
     res.status(201).json({

@@ -2,10 +2,8 @@ import { Request, Response } from "express";
 import * as walletService from "./wallet.service";
 import { User } from "../user/user.model";
 
-// 🔹 Get my wallet info
 export const getMyWallet = async (req: any, res: Response) => {
   try {
-    // ✅ populate দিয়ে wallet full info আনছি
     const { amount } = req.body;
     const user = await User.findById(req.user.id).populate("wallet");
 
@@ -30,7 +28,6 @@ export const getMyWallet = async (req: any, res: Response) => {
   }
 };
 
-// 🔹 Add money
 export const addMoney = async (req: any, res: Response) => {
   try {
     const { amount } = req.body;
@@ -53,7 +50,6 @@ export const addMoney = async (req: any, res: Response) => {
   }
 };
 
-// 🔹 Withdraw money
 export const withdrawMoney = async (req: any, res: Response) => {
   try {
     const { amount } = req.body;
@@ -76,7 +72,6 @@ export const withdrawMoney = async (req: any, res: Response) => {
   }
 };
 
-// 🔹 Send money
 export const sendMoney = async (req: any, res: Response) => {
   try {
     const { amount, receiverEmail } = req.body;

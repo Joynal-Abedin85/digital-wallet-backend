@@ -11,10 +11,8 @@ import validateRequest from "../../middlewares/validateRequest";
 
 const router = express.Router();
 
-// 🔹 Public routes
 router.post("/register", validateRequest(createUserValidation), registerUser);
 
-// 🔹 Protected routes (later you’ll add auth middleware)
 router.get("/", getAllUsers);
 router.get("/me", getMyProfile);
 router.patch("/block/:id", blockUnblockUser);

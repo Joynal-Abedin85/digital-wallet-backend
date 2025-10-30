@@ -1,7 +1,7 @@
 import { Document, Types } from "mongoose";
 
 export interface IWallet extends Document {
-  user: Types.ObjectId;       // Reference to User
+  user: Types.ObjectId;    
   balance: number; 
   status: "active" | "blocked"; 
   createdAt?: Date;
