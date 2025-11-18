@@ -6,7 +6,6 @@ interface EnvConfig {
     PORT: string,
     DB_URL: string,
     NODE_ENV: "development" | "production",
-    
     BCRYPT_SALT_ROUND : string
     JWT_ACCESS_EXPIRES: string
     JWT_ACCESS_SECRET:string
@@ -17,7 +16,6 @@ interface EnvConfig {
 
 const loadEnvVariables = () : EnvConfig => {
     const requiredEnvVariables : string[] = ["PORT", "DB_URL", "NODE_ENV","JWT_REFRESH_EXPIRED","JWT_REFRESH_SECRET","BCRYPT_SALT_ROUND", "JWT_ACCESS_EXPIRES","JWT_ACCESS_SECRET", ]
-
     requiredEnvVariables.forEach(key => {
         if(!process.env[key]) {
             throw new Error(`missing required environment variables ${key}`)

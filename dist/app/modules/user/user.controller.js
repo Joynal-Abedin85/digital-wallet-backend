@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveAgent = exports.blockUnblockUser = exports.registerUser = exports.getMyProfile = exports.getAllUsers = void 0;
+exports.approveAgent = exports.blockUnblockUser = exports.registerUser = exports.updateProfile = exports.loginUser = exports.getMyProfile = exports.getAllUsers = void 0;
 const user_model_1 = require("./user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../../config/env");
 const usertoken_1 = require("../../utility/usertoken");
 const wallet_model_1 = require("../wallet/wallet.model");
@@ -40,6 +41,89 @@ const getMyProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getMyProfile = getMyProfile;
+const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        // Input check
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password required",
+            });
+        }
+        // 1️⃣ User find + Populate wallet
+        const user = yield user_model_1.User.findOne({ email }).populate("wallet");
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+        // 2️⃣ Password check
+        const isMatch = yield bcryptjs_1.default.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid credentials",
+            });
+        }
+        // 3️⃣ Generate tokens (same as registration)
+        const accesstoken = jsonwebtoken_1.default.sign({
+            userId: user._id,
+            email: user.email,
+            role: user.role,
+        }, process.env.JWT_ACCESS_SECRET, { expiresIn: "7d" });
+        const refreshtoken = jsonwebtoken_1.default.sign({
+            userId: user._id,
+            email: user.email,
+            role: user.role,
+        }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+        // 4️⃣ Return FULL data (same format as registration)
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data: {
+                tokens: {
+                    accesstoken,
+                    refreshtoken,
+                },
+                user,
+                wallet: user.wallet,
+            },
+        });
+    }
+    catch (error) {
+        console.error("❌ Login error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Login failed",
+            error: error.message,
+        });
+    }
+});
+exports.loginUser = loginUser;
+const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.user.id;
+        const updatedUser = yield user_model_1.User.findByIdAndUpdate(userId, {
+            name: req.body.name,
+            phone: req.body.phone,
+        }, { new: true }).select("-password");
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            data: updatedUser,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Profile update failed",
+        });
+    }
+});
+exports.updateProfile = updateProfile;
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password, role } = req.body;
@@ -50,19 +134,21 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 message: "User already exists",
             });
         }
+        // 🔑 Password hash correction
         const hashedPassword = yield bcryptjs_1.default.hash(password, Number(env_1.envVars.BCRYPT_SALT_ROUND) || 10);
         const user = yield user_model_1.User.create({
             name,
             email,
-            password: hashedPassword,
+            password: hashedPassword, // এখানে hash করা password save হচ্ছে
             role: role || "user",
         });
         const wallet = yield wallet_model_1.Wallet.create({
             user: user._id,
             balance: 50,
         });
-        user.wallet = wallet === null || wallet === void 0 ? void 0 : wallet._id;
+        user.wallet = wallet._id;
         yield user.save();
+        // JWT token create
         const tokens = (0, usertoken_1.createusertoken)(user);
         res.status(201).json({
             success: true,

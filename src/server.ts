@@ -5,6 +5,9 @@ import { envVars } from "./app/config/env";
 
 let server: Server
 
+
+const PORT = process.env.PORT || 5000;
+
 const startserver = async () => {
     try {
         await mongoose.connect(envVars.DB_URL)
@@ -12,7 +15,7 @@ const startserver = async () => {
         console.log("connect to db")
 
         server = app.listen(5000, () => {
-            console.log("server is lestening to port 5000")
+            console.log(`server is lestening to port ${PORT}`)
         })
     } catch (error) {
         console.log(error)

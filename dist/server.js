@@ -16,12 +16,13 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const env_1 = require("./app/config/env");
 let server;
+const PORT = process.env.PORT || 5000;
 const startserver = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield mongoose_1.default.connect(env_1.envVars.DB_URL);
         console.log("connect to db");
         server = app_1.default.listen(5000, () => {
-            console.log("server is lestening to port 5000");
+            console.log(`server is lestening to port ${PORT}`);
         });
     }
     catch (error) {
