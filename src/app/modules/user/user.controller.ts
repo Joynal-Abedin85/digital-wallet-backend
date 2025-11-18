@@ -147,15 +147,15 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     // 🔑 Password hash correction
-    const hashedPassword = await bcryptjs.hash(
-      password,
-      Number(envVars.BCRYPT_SALT_ROUND) || 10
-    );
+    // const hashedPassword = await bcryptjs.hash(
+    //   password,
+    //   Number(envVars.BCRYPT_SALT_ROUND) || 10
+    // );
 
     const user = await User.create({
       name,
       email,
-      password: hashedPassword, // এখানে hash করা password save হচ্ছে
+      password: password, // এখানে hash করা password save হচ্ছে
       role: role || "user",
     });
 
