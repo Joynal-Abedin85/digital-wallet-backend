@@ -13,4 +13,5 @@ router.get("/me", wallet_controller_1.getMyWallet);
 router.post("/deposit", wallet_controller_1.addMoney);
 router.post("/withdraw", wallet_controller_1.withdrawMoney);
 router.post("/send", wallet_controller_1.sendMoney);
+router.get("/transection", wallet_controller_1.getMyTransactions);
 exports.WalletRoutes = router;

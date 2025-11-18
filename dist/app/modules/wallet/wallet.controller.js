@@ -42,30 +42,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMoney = exports.withdrawMoney = exports.addMoney = exports.getMyWallet = void 0;
+exports.getMyTransactions = exports.sendMoney = exports.withdrawMoney = exports.addMoney = exports.getMyWallet = void 0;
 const walletService = __importStar(require("./wallet.service"));
 const user_model_1 = require("../user/user.model");
+const wallet_model_1 = require("./wallet.model");
 const getMyWallet = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { amount } = req.body;
         const user = yield user_model_1.User.findById(req.user.id).populate("wallet");
         if (!user || !user.wallet) {
             return res.status(404).json({
                 success: false,
-                message: "Wallet not accessible",
+                message: "Wallet not found",
             });
         }
-        const wallet = user.wallet;
-        wallet.balance += amount;
-        yield wallet.save();
         res.status(200).json({
             success: true,
             message: "Wallet fetched successfully",
-            data: wallet,
+            data: user.wallet,
         });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 });
 exports.getMyWallet = getMyWallet;
@@ -78,6 +78,12 @@ const addMoney = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .json({ success: false, message: "Invalid amount" });
         }
         const wallet = yield walletService.addMoney(req.user.id, amount);
+        // ✅ Transaction log
+        yield wallet_model_1.Transaction.create({
+            user: req.user.id,
+            type: "deposit",
+            amount,
+        });
         res.status(200).json({
             success: true,
             message: "Money added successfully",
@@ -98,6 +104,12 @@ const withdrawMoney = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 .json({ success: false, message: "Invalid amount" });
         }
         const wallet = yield walletService.withdrawMoney(req.user.id, amount);
+        // ✅ Transaction log
+        yield wallet_model_1.Transaction.create({
+            user: req.user.id,
+            type: "withdraw",
+            amount,
+        });
         res.status(200).json({
             success: true,
             message: "Money withdrawn successfully",
@@ -118,7 +130,28 @@ const sendMoney = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 message: "Amount and receiver email required",
             });
         }
+        const receiverUser = yield user_model_1.User.findOne({ email: receiverEmail });
+        if (!receiverUser) {
+            return res.status(404).json({
+                success: false,
+                message: "Receiver not found",
+            });
+        }
         const result = yield walletService.sendMoney(req.user.id, receiverEmail, amount);
+        // ✅ Transaction log for sender
+        yield wallet_model_1.Transaction.create({
+            user: req.user.id,
+            type: "send",
+            amount,
+            receiver: receiverEmail,
+        });
+        // ✅ Transaction log for receiver (optional)
+        yield wallet_model_1.Transaction.create({
+            user: receiverUser._id,
+            type: "deposit",
+            amount,
+            receiver: req.user.email, // sender email
+        });
         res.status(200).json({
             success: true,
             message: "Money sent successfully",
@@ -130,3 +163,28 @@ const sendMoney = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.sendMoney = sendMoney;
+const getMyTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        const transactions = yield wallet_model_1.Transaction.find({ user: userId })
+            .sort({ createdAt: -1 });
+        res.status(200).json({
+            success: true,
+            data: transactions,
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to load transactions",
+        });
+    }
+});
+exports.getMyTransactions = getMyTransactions;

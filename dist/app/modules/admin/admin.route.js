@@ -13,4 +13,8 @@ router.get("/users", admin_controller_1.getAllUsers);
 router.get("/wallets", admin_controller_1.getAllWallets);
 router.patch("/wallets/:id/status", admin_controller_1.updateWalletStatus);
 router.patch("/agents/:id/status", admin_controller_1.updateAgentStatus);
+router.get("/transactions", admin_controller_1.getAllTransactions);
+router.patch("/profile", admin_controller_1.updateAdminProfile);
+router.get("/overview", admin_controller_1.getAdminOverview);
+router.get("/agents", admin_controller_1.getAllAgents);
 exports.adminroute = router;

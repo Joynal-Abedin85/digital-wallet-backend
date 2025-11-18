@@ -11,4 +11,6 @@ const router = express_1.default.Router();
 router.post("/cash-in", authMiddleware_1.verifyToken, (0, authMiddleware_1.authorizeRoles)("agent"), agent_controller_1.cashIn);
 router.post("/cash-out", authMiddleware_1.verifyToken, (0, authMiddleware_1.authorizeRoles)("agent"), agent_controller_1.cashOut);
 router.get("/commissions", authMiddleware_1.verifyToken, (0, authMiddleware_1.authorizeRoles)("agent"), agent_controller_1.getCommissionHistory);
+router.get("/overview", authMiddleware_1.verifyToken, (0, authMiddleware_1.authorizeRoles)("agent"), agent_controller_1.getAgentOverview);
+router.get("/transactions", authMiddleware_1.verifyToken, (0, authMiddleware_1.authorizeRoles)("agent"), agent_controller_1.getAgentTransactions);
 exports.agentroutes = router;

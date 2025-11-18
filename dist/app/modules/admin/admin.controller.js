@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateAgentStatus = exports.updateWalletStatus = exports.getAllWallets = exports.getAllUsers = void 0;
+exports.getAllAgents = exports.updateAdminProfile = exports.getAllTransactions = exports.getAdminOverview = exports.updateAgentStatus = exports.updateWalletStatus = exports.getAllWallets = exports.getAllUsers = void 0;
 const user_model_1 = require("../user/user.model");
 const wallet_model_1 = require("../wallet/wallet.model");
+const agent_model_1 = require("../agent/agent.model");
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_model_1.User.find().select("-password");
@@ -68,3 +69,84 @@ const updateAgentStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateAgentStatus = updateAgentStatus;
+const getAdminOverview = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const totalUsers = yield user_model_1.User.countDocuments({ role: "user" });
+        const totalAgents = yield user_model_1.User.countDocuments({ role: "agent" });
+        const totalTransactions = yield agent_model_1.Commission.countDocuments();
+        const transactionVolumeAgg = yield agent_model_1.Commission.aggregate([
+            { $group: { _id: null, total: { $sum: "$amount" } } },
+        ]);
+        const totalVolume = ((_a = transactionVolumeAgg[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
+        res.status(200).json({
+            success: true,
+            overview: {
+                totalUsers,
+                totalAgents,
+                totalTransactions,
+                totalVolume,
+            },
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: "Error fetching overview", error });
+    }
+});
+exports.getAdminOverview = getAdminOverview;
+const getAllTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page = 1, limit = 10, type, userId, agentId } = req.query;
+        const filter = {};
+        if (type)
+            filter.type = type;
+        if (userId)
+            filter.user = userId;
+        if (agentId)
+            filter.agent = agentId;
+        const transactions = yield agent_model_1.Commission.find(filter)
+            .sort({ createdAt: -1 })
+            .skip((+page - 1) * +limit)
+            .limit(+limit);
+        const usertran = yield wallet_model_1.Transaction.find();
+        const total = yield agent_model_1.Commission.countDocuments(filter);
+        res.status(200).json({ success: true, transactions, total, usertran });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: "Failed to fetch transactions", error });
+    }
+});
+exports.getAllTransactions = getAllTransactions;
+const updateAdminProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id; // optional chaining safety
+        if (!adminId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+        const { name, email, password } = req.body;
+        const updateData = {};
+        if (name)
+            updateData.name = name;
+        if (email)
+            updateData.email = email;
+        if (password)
+            updateData.password = password; // hash if necessary
+        const updatedAdmin = yield user_model_1.User.findByIdAndUpdate(adminId, updateData, { new: true }).select("-password");
+        res.status(200).json({ success: true, admin: updatedAdmin });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: "Failed to update profile", error });
+    }
+});
+exports.updateAdminProfile = updateAdminProfile;
+const getAllAgents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const agents = yield user_model_1.User.find({ role: "agent" }).select("-password");
+        res.status(200).json({ success: true, agents });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: "Failed to fetch agents", error });
+    }
+});
+exports.getAllAgents = getAllAgents;
